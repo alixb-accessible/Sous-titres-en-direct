@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Assistant Parole</title>
+    <title>Sous-titres en Direct</title>
     <link rel="stylesheet" href="https://alixb-accessible.github.io/faites-mieux-toolbar/faites-mieux.css">
     <script src="https://alixb-accessible.github.io/faites-mieux-toolbar/faites-mieux.js" defer></script>
     <style>
@@ -24,9 +24,6 @@
                 #fbbf24 57.12%, #fbbf24 71.4%,
                 #dc2626 71.4%, #dc2626 85.68%,
                 #4a4a4a 85.68%, #4a4a4a 100%);
-            display: flex;
-            align-items: center;
-            justify-content: center;
             padding: 20px;
         }
 
@@ -34,21 +31,28 @@
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(10px);
             border-radius: 20px;
-            padding: 40px;
-            max-width: 700px;
-            width: 100%;
+            padding: 30px;
+            max-width: 900px;
+            margin: 0 auto;
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
         }
 
         h1 {
             text-align: center;
             color: #1f2937;
-            margin-bottom: 30px;
+            margin-bottom: 20px;
             font-size: 2em;
         }
 
-        .input-group {
-            margin-bottom: 20px;
+        .controls {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .language-select {
+            width: 100%;
         }
 
         label {
@@ -57,34 +61,6 @@
             color: #374151;
             font-weight: 600;
             font-size: 1.1em;
-        }
-
-        textarea {
-            width: 100%;
-            min-height: 150px;
-            padding: 15px;
-            border: 2px solid #d1d5db;
-            border-radius: 10px;
-            font-size: 16px;
-            font-family: inherit;
-            resize: vertical;
-            transition: border-color 0.3s;
-        }
-
-        textarea:focus {
-            outline: none;
-            border-color: #3b82f6;
-        }
-
-        .controls {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-            margin-bottom: 20px;
-        }
-
-        .controls > div {
-            width: 100%;
         }
 
         select {
@@ -112,22 +88,11 @@
             box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
         }
 
-        optgroup {
-            font-weight: bold;
-            font-size: 16px;
-            color: #1f2937;
-            padding: 8px 0;
-        }
-
-        option {
-            padding: 10px;
-            font-size: 16px;
-        }
-
         .buttons {
             display: flex;
             flex-direction: column;
             gap: 15px;
+            margin-bottom: 25px;
         }
 
         button {
@@ -147,76 +112,147 @@
             -webkit-user-select: none;
         }
 
-        .btn-speak {
+        .btn-start {
             background: #22c55e;
             color: white;
         }
 
-        .btn-speak:active {
-            background: #16a34a;
-            transform: scale(0.98);
-        }
-
-        .btn-speak:hover {
+        .btn-start:hover {
             background: #16a34a;
             transform: translateY(-2px);
             box-shadow: 0 5px 15px rgba(34, 197, 94, 0.4);
         }
 
-        .btn-speak:disabled {
-            background: #9ca3af;
-            cursor: not-allowed;
-            transform: none;
-        }
-
-        .btn-stop {
-            background: #dc2626;
-            color: white;
-        }
-
-        .btn-stop:active {
-            background: #b91c1c;
+        .btn-start:active {
+            background: #16a34a;
             transform: scale(0.98);
         }
 
-        .btn-stop:hover {
-            background: #b91c1c;
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(220, 38, 38, 0.4);
+        .btn-start.listening {
+            background: #dc2626;
+            animation: pulse 1.5s ease-in-out infinite;
         }
 
-        .btn-stop:disabled {
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        .btn-start:disabled {
             background: #9ca3af;
             cursor: not-allowed;
             transform: none;
         }
 
-        .btn-clear {
+        .btn-clear, .btn-copy, .btn-download, .btn-overlay, .btn-record, .btn-download-audio {
             background: #6b7280;
             color: white;
         }
 
-        .btn-clear:active {
-            background: #4b5563;
-            transform: scale(0.98);
-        }
-
-        .btn-clear:hover {
+        .btn-clear:hover, .btn-copy:hover, .btn-download:hover, .btn-overlay:hover, .btn-record:hover, .btn-download-audio:hover {
             background: #4b5563;
             transform: translateY(-2px);
             box-shadow: 0 5px 15px rgba(107, 114, 128, 0.4);
         }
 
+        .btn-clear:active, .btn-copy:active, .btn-download:active, .btn-overlay:active, .btn-record:active, .btn-download-audio:active {
+            background: #4b5563;
+            transform: scale(0.98);
+        }
+
+        .btn-record {
+            background: #ef4444;
+        }
+
+        .btn-record:hover {
+            background: #dc2626;
+            box-shadow: 0 5px 15px rgba(239, 68, 68, 0.4);
+        }
+
+        .btn-record:active {
+            background: #dc2626;
+        }
+
+        .btn-record.recording {
+            background: #7c2d12;
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+
+        .btn-download-audio {
+            background: #10b981;
+        }
+
+        .btn-download-audio:hover {
+            background: #059669;
+            box-shadow: 0 5px 15px rgba(16, 185, 129, 0.4);
+        }
+
+        .btn-download-audio:active {
+            background: #059669;
+        }
+
+        .btn-overlay {
+            background: #8b5cf6;
+        }
+
+        .btn-overlay:hover {
+            background: #7c3aed;
+            box-shadow: 0 5px 15px rgba(139, 92, 246, 0.4);
+        }
+
+        .btn-overlay:active {
+            background: #7c3aed;
+        }
+
+        .transcript-container {
+            background: #f9fafb;
+            border: 2px solid #e5e7eb;
+            border-radius: 10px;
+            padding: 20px;
+            min-height: 300px;
+            max-height: 500px;
+            overflow-y: auto;
+            margin-bottom: 20px;
+        }
+
+        .transcript-line {
+            margin-bottom: 15px;
+            padding: 12px;
+            background: white;
+            border-radius: 8px;
+            border-left: 4px solid #3b82f6;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .transcript-line.interim {
+            border-left-color: #fbbf24;
+            opacity: 0.7;
+            font-style: italic;
+        }
+
+        .timestamp {
+            font-size: 0.85em;
+            color: #6b7280;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .text {
+            color: #1f2937;
+            font-size: 1.1em;
+            line-height: 1.6;
+        }
+
         .status {
             text-align: center;
-            margin-top: 20px;
             padding: 12px;
             border-radius: 8px;
             font-weight: 600;
             font-size: 16px;
+            margin-bottom: 20px;
         }
 
-        .status.speaking {
+        .status.listening {
             background: #dcfce7;
             color: #166534;
         }
@@ -226,6 +262,142 @@
             color: #6b7280;
         }
 
+        .status.error {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .recording-indicator {
+            display: none;
+            text-align: center;
+            padding: 10px;
+            background: #fee2e2;
+            color: #991b1b;
+            border-radius: 8px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+
+        .recording-indicator.active {
+            display: block;
+        }
+
+        .empty-state {
+            text-align: center;
+            color: #9ca3af;
+            padding: 40px;
+            font-size: 1.1em;
+        }
+
+        /* Mode Incrustation pour Stream */
+        body.overlay-mode {
+            background: transparent !important;
+            padding: 0 !important;
+        }
+
+        body.overlay-mode .container {
+            background: transparent !important;
+            box-shadow: none !important;
+            padding: 20px !important;
+            max-width: 100% !important;
+        }
+
+        body.overlay-mode h1,
+        body.overlay-mode .status,
+        body.overlay-mode .controls,
+        body.overlay-mode .buttons {
+            display: none !important;
+        }
+
+        body.overlay-mode .transcript-container {
+            background: transparent !important;
+            border: none !important;
+            padding: 0 !important;
+            max-height: none !important;
+            min-height: 0 !important;
+        }
+
+        body.overlay-mode .transcript-line {
+            background: rgba(0, 0, 0, 0.85) !important;
+            border: none !important;
+            border-left: 6px solid #22c55e !important;
+            padding: 25px 30px !important;
+            margin-bottom: 20px !important;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5) !important;
+        }
+
+        body.overlay-mode .transcript-line.interim {
+            border-left-color: #fbbf24 !important;
+            background: rgba(0, 0, 0, 0.75) !important;
+        }
+
+        body.overlay-mode .timestamp {
+            color: #22c55e !important;
+            font-size: 1.2em !important;
+            font-weight: 700 !important;
+            margin-bottom: 10px !important;
+        }
+
+        body.overlay-mode .text {
+            color: #ffffff !important;
+            font-size: 2.5em !important;
+            line-height: 1.5 !important;
+            font-weight: 600 !important;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8) !important;
+        }
+
+        body.overlay-mode .empty-state {
+            display: none !important;
+        }
+
+        /* Instructions overlay */
+        .overlay-instructions {
+            display: none;
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.9);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            border-left: 4px solid #8b5cf6;
+            max-width: 400px;
+            z-index: 9999;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+        }
+
+        body.overlay-mode .overlay-instructions {
+            display: block;
+        }
+
+        .overlay-instructions h3 {
+            margin: 0 0 10px 0;
+            color: #8b5cf6;
+            font-size: 1.2em;
+        }
+
+        .overlay-instructions p {
+            margin: 5px 0;
+            font-size: 0.95em;
+            line-height: 1.5;
+        }
+
+        .overlay-instructions button {
+            margin-top: 15px;
+            padding: 10px 20px;
+            background: #8b5cf6;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .overlay-instructions button:hover {
+            background: #7c3aed;
+        }
+
         @media (max-width: 600px) {
             .container {
                 padding: 20px;
@@ -233,22 +405,6 @@
 
             h1 {
                 font-size: 1.6em;
-                margin-bottom: 25px;
-            }
-
-            textarea {
-                min-height: 120px;
-                font-size: 18px;
-            }
-
-            label {
-                font-size: 1em;
-            }
-
-            select {
-                font-size: 16px;
-                padding: 14px;
-                padding-right: 40px;
             }
 
             button {
@@ -256,324 +412,524 @@
                 font-size: 18px;
             }
 
-            .status {
-                font-size: 15px;
+            .transcript-container {
+                min-height: 200px;
+                max-height: 400px;
             }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>🔊 Assistant Parole</h1>
+        <h1>🎤 Sous-titres en Direct</h1>
         
-        <div class="input-group">
-            <label for="textInput">Écrivez votre texte ici :</label>
-            <textarea 
-                id="textInput" 
-                placeholder="Tapez le texte que vous voulez entendre..."
-                aria-label="Zone de texte pour la synthèse vocale"
-            >Bonjour ! Je suis votre assistant parole. Écrivez quelque chose et je le lirai pour vous.</textarea>
+        <div class="status idle" id="status" role="status" aria-live="polite">
+            Prêt à écouter
+        </div>
+
+        <div class="recording-indicator" id="recordingIndicator">
+            🔴 ENREGISTREMENT AUDIO EN COURS
         </div>
 
         <div class="controls">
-            <div>
-                <label for="voiceSelect">Voix :</label>
-                <select id="voiceSelect" aria-label="Sélection de la voix"></select>
-            </div>
-            <div>
-                <label for="rateSelect">Vitesse :</label>
-                <select id="rateSelect" aria-label="Sélection de la vitesse">
-                    <option value="0.5">Très lent</option>
-                    <option value="0.6">🦇 Batman (Lent et menaçant)</option>
-                    <option value="0.75">Lent</option>
-                    <option value="1" selected>Normal</option>
-                    <option value="1.25">Rapide</option>
-                    <option value="1.5">Très rapide</option>
-                </select>
-            </div>
-            <div>
-                <label for="pitchSelect">Hauteur :</label>
-                <select id="pitchSelect" aria-label="Sélection de la hauteur de la voix">
-                    <option value="0.5">🦇 Batman (Ultra grave)</option>
-                    <option value="0.6">Très très grave</option>
-                    <option value="0.75">Grave</option>
-                    <option value="1" selected>Normal</option>
-                    <option value="1.25">Aigu</option>
-                    <option value="1.5">Très aigu</option>
-                    <option value="2">Très très aigu</option>
+            <div class="language-select">
+                <label for="languageSelect">Langue :</label>
+                <select id="languageSelect" aria-label="Sélection de la langue">
+                    <option value="fr-FR" selected>🇫🇷 Français</option>
+                    <option value="en-US">🇺🇸 English (US)</option>
+                    <option value="en-GB">🇬🇧 English (UK)</option>
+                    <option value="es-ES">🇪🇸 Español</option>
+                    <option value="de-DE">🇩🇪 Deutsch</option>
+                    <option value="it-IT">🇮🇹 Italiano</option>
+                    <option value="pt-BR">🇧🇷 Português</option>
+                    <option value="ar-SA">🇸🇦 العربية</option>
+                    <option value="zh-CN">🇨🇳 中文</option>
+                    <option value="ja-JP">🇯🇵 日本語</option>
                 </select>
             </div>
         </div>
 
         <div class="buttons">
-            <button class="btn-speak" id="speakBtn" aria-label="Lire le texte">
-                ▶ Lire
+            <button class="btn-start" id="startBtn" aria-label="Démarrer l'écoute">
+                ▶ Démarrer l'écoute
             </button>
-            <button class="btn-stop" id="stopBtn" disabled aria-label="Arrêter la lecture">
-                ⏹ Stop
+            <button class="btn-record" id="recordBtn" aria-label="Enregistrer l'audio">
+                🔴 Enregistrer l'audio
             </button>
-            <button class="btn-clear" id="clearBtn" aria-label="Effacer le texte">
-                🗑 Effacer
+            <button class="btn-overlay" id="overlayBtn" aria-label="Mode incrustation stream">
+                🎬 Mode Incrustation Stream
+            </button>
+            <button class="btn-copy" id="copyBtn" aria-label="Copier le texte">
+                📋 Copier le texte
+            </button>
+            <button class="btn-download" id="downloadBtn" aria-label="Télécharger en TXT">
+                💾 Télécharger (TXT)
+            </button>
+            <button class="btn-download-audio" id="downloadAudioBtn" aria-label="Télécharger l'audio" style="display: none;">
+                🎵 Télécharger l'audio
+            </button>
+            <button class="btn-clear" id="clearBtn" aria-label="Effacer tout">
+                🗑 Effacer tout
             </button>
         </div>
 
-        <div class="status idle" id="status" role="status" aria-live="polite">
-            Prêt à lire
+        <div class="transcript-container" id="transcriptContainer">
+            <div class="empty-state">
+                Cliquez sur "Démarrer l'écoute" pour commencer la transcription...
+            </div>
+        </div>
+
+        <div class="overlay-instructions" id="overlayInstructions">
+            <h3>🎬 Mode Incrustation Actif</h3>
+            <p><strong>Pour OBS Studio :</strong></p>
+            <p>1. Ajoutez une source "Navigateur"</p>
+            <p>2. Collez l'URL de cette page</p>
+            <p>3. Réglez la largeur/hauteur (ex: 1920x400)</p>
+            <p>4. Les sous-titres apparaîtront automatiquement !</p>
+            <p><strong>Astuce :</strong> Appuyez sur F11 pour le plein écran</p>
+            <button id="exitOverlayBtn">Quitter le mode incrustation</button>
         </div>
     </div>
 
     <script>
-        const textInput = document.getElementById('textInput');
-        const voiceSelect = document.getElementById('voiceSelect');
-        const rateSelect = document.getElementById('rateSelect');
-        const pitchSelect = document.getElementById('pitchSelect');
-        const speakBtn = document.getElementById('speakBtn');
-        const stopBtn = document.getElementById('stopBtn');
+        const startBtn = document.getElementById('startBtn');
+        const recordBtn = document.getElementById('recordBtn');
+        const overlayBtn = document.getElementById('overlayBtn');
+        const copyBtn = document.getElementById('copyBtn');
+        const downloadBtn = document.getElementById('downloadBtn');
+        const downloadAudioBtn = document.getElementById('downloadAudioBtn');
         const clearBtn = document.getElementById('clearBtn');
         const status = document.getElementById('status');
+        const recordingIndicator = document.getElementById('recordingIndicator');
+        const transcriptContainer = document.getElementById('transcriptContainer');
+        const languageSelect = document.getElementById('languageSelect');
+        const overlayInstructions = document.getElementById('overlayInstructions');
+        const exitOverlayBtn = document.getElementById('exitOverlayBtn');
 
-        let voices = [];
-        let synthesis = window.speechSynthesis;
+        let recognition = null;
+        let isListening = false;
+        let transcriptLines = [];
+        let isOverlayMode = false;
 
-        // Charger les voix disponibles
-        function loadVoices() {
-            voices = synthesis.getVoices();
-            voiceSelect.innerHTML = '';
+        // Variables pour l'enregistrement audio
+        let mediaRecorder = null;
+        let audioChunks = [];
+        let isRecording = false;
+        let audioBlob = null;
+
+        // Mode incrustation
+        overlayBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            toggleOverlayMode();
+        });
+
+        overlayBtn.addEventListener('touchend', (e) => {
+            e.preventDefault();
+            toggleOverlayMode();
+        });
+
+        exitOverlayBtn.addEventListener('click', () => {
+            toggleOverlayMode();
+        });
+
+        function toggleOverlayMode() {
+            isOverlayMode = !isOverlayMode;
+            document.body.classList.toggle('overlay-mode', isOverlayMode);
             
-            // Séparer les voix françaises masculines et féminines
-            const frenchVoices = voices.filter(v => v.lang.startsWith('fr'));
-            const maleVoices = frenchVoices.filter(v => 
-                v.name.toLowerCase().includes('male') || 
-                v.name.toLowerCase().includes('homme') ||
-                v.name.toLowerCase().includes('thomas') ||
-                v.name.toLowerCase().includes('daniel')
-            );
-            const femaleVoices = frenchVoices.filter(v => 
-                v.name.toLowerCase().includes('female') || 
-                v.name.toLowerCase().includes('femme') ||
-                v.name.toLowerCase().includes('amélie') ||
-                v.name.toLowerCase().includes('marie') ||
-                v.name.toLowerCase().includes('céline')
-            );
-            const otherFrenchVoices = frenchVoices.filter(v => 
-                !maleVoices.includes(v) && !femaleVoices.includes(v)
-            );
-            const nonFrenchVoices = voices.filter(v => !v.lang.startsWith('fr'));
-            
-            // Créer les groupes d'options
-            if (femaleVoices.length > 0) {
-                const femaleGroup = document.createElement('optgroup');
-                femaleGroup.label = '🚺 Voix féminines françaises';
-                femaleVoices.forEach(voice => {
-                    const option = document.createElement('option');
-                    option.value = voices.indexOf(voice);
-                    option.textContent = `${voice.name}`;
-                    femaleGroup.appendChild(option);
-                });
-                voiceSelect.appendChild(femaleGroup);
-            }
-            
-            if (maleVoices.length > 0) {
-                const maleGroup = document.createElement('optgroup');
-                maleGroup.label = '🚹 Voix masculines françaises';
-                maleVoices.forEach(voice => {
-                    const option = document.createElement('option');
-                    option.value = voices.indexOf(voice);
-                    option.textContent = `${voice.name}`;
-                    maleGroup.appendChild(option);
-                });
-                voiceSelect.appendChild(maleGroup);
-            }
-            
-            if (otherFrenchVoices.length > 0) {
-                const otherFrGroup = document.createElement('optgroup');
-                otherFrGroup.label = '🇫🇷 Autres voix françaises';
-                otherFrenchVoices.forEach(voice => {
-                    const option = document.createElement('option');
-                    option.value = voices.indexOf(voice);
-                    option.textContent = `${voice.name}`;
-                    if (voice.default) option.selected = true;
-                    otherFrGroup.appendChild(option);
-                });
-                voiceSelect.appendChild(otherFrGroup);
-            }
-            
-            if (nonFrenchVoices.length > 0) {
-                const otherGroup = document.createElement('optgroup');
-                otherGroup.label = '🌍 Autres langues';
-                nonFrenchVoices.forEach(voice => {
-                    const option = document.createElement('option');
-                    option.value = voices.indexOf(voice);
-                    option.textContent = `${voice.name} (${voice.lang})`;
-                    otherGroup.appendChild(option);
-                });
-                voiceSelect.appendChild(otherGroup);
+            if (isOverlayMode) {
+                // Démarrer automatiquement l'écoute en mode overlay
+                if (!isListening && recognition) {
+                    setTimeout(() => {
+                        try {
+                            recognition.start();
+                        } catch (err) {
+                            console.error('Erreur démarrage auto:', err);
+                        }
+                    }, 500);
+                }
             }
         }
 
-        // Charger les voix au chargement et quand elles changent
-        // Sur mobile, il faut parfois attendre un peu
-        loadVoices();
-        if (synthesis.onvoiceschanged !== undefined) {
-            synthesis.onvoiceschanged = loadVoices;
-        }
-        
-        // Recharger après un délai pour mobile
-        setTimeout(loadVoices, 100);
-        setTimeout(loadVoices, 500);
+        // Enregistrement audio
+        recordBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            toggleRecording();
+        });
 
-        // Fonction de lecture
-        function speak() {
-            const text = textInput.value.trim();
-            
-            if (!text) {
-                alert('Veuillez entrer du texte à lire.');
+        recordBtn.addEventListener('touchend', (e) => {
+            e.preventDefault();
+            toggleRecording();
+        });
+
+        async function toggleRecording() {
+            if (isRecording) {
+                stopRecording();
+            } else {
+                await startRecording();
+            }
+        }
+
+        async function startRecording() {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ 
+                    audio: {
+                        echoCancellation: true,
+                        noiseSuppression: true,
+                        sampleRate: 44100
+                    } 
+                });
+
+                // Créer le MediaRecorder
+                const options = { mimeType: 'audio/webm' };
+                
+                // Fallback pour Safari
+                if (!MediaRecorder.isTypeSupported('audio/webm')) {
+                    options.mimeType = 'audio/mp4';
+                }
+
+                mediaRecorder = new MediaRecorder(stream, options);
+                audioChunks = [];
+
+                mediaRecorder.ondataavailable = (event) => {
+                    if (event.data.size > 0) {
+                        audioChunks.push(event.data);
+                    }
+                };
+
+                mediaRecorder.onstop = () => {
+                    audioBlob = new Blob(audioChunks, { type: mediaRecorder.mimeType });
+                    downloadAudioBtn.style.display = 'block';
+                    
+                    // Arrêter tous les tracks du stream
+                    stream.getTracks().forEach(track => track.stop());
+                };
+
+                mediaRecorder.start();
+                isRecording = true;
+                recordBtn.textContent = '⏹ Arrêter l\'enregistrement';
+                recordBtn.classList.add('recording');
+                recordingIndicator.classList.add('active');
+
+            } catch (err) {
+                console.error('Erreur enregistrement audio:', err);
+                alert('Impossible d\'accéder au micro pour l\'enregistrement. Vérifiez les permissions.');
+            }
+        }
+
+        function stopRecording() {
+            if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+                mediaRecorder.stop();
+                isRecording = false;
+                recordBtn.textContent = '🔴 Enregistrer l\'audio';
+                recordBtn.classList.remove('recording');
+                recordingIndicator.classList.remove('active');
+            }
+        }
+
+        // Télécharger l'audio
+        downloadAudioBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            downloadAudio();
+        });
+
+        downloadAudioBtn.addEventListener('touchend', (e) => {
+            e.preventDefault();
+            downloadAudio();
+        });
+
+        function downloadAudio() {
+            if (!audioBlob) {
+                alert('Aucun audio enregistré');
                 return;
             }
 
-            // Arrêter toute lecture en cours
-            synthesis.cancel();
-            
-            // Petit délai pour iOS/Android
+            const url = URL.createObjectURL(audioBlob);
+            const a = document.createElement('a');
+            const date = new Date().toISOString().split('T')[0];
+            const time = new Date().toTimeString().split(' ')[0].replace(/:/g, '-');
+            const extension = audioBlob.type.includes('webm') ? 'webm' : 'mp4';
+            a.href = url;
+            a.download = `enregistrement-${date}-${time}.${extension}`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+
+            const originalText = downloadAudioBtn.textContent;
+            downloadAudioBtn.textContent = '✓ Audio téléchargé !';
             setTimeout(() => {
-                const utterance = new SpeechSynthesisUtterance(text);
-                
-                // Recharger les voix si nécessaire (bug mobile)
-                if (voices.length === 0) {
-                    voices = synthesis.getVoices();
+                downloadAudioBtn.textContent = originalText;
+            }, 2000);
+        }
+
+        // Vérifier la compatibilité
+        if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+            status.textContent = 'Erreur : Reconnaissance vocale non supportée par ce navigateur';
+            status.className = 'status error';
+            startBtn.disabled = true;
+        } else {
+            // Initialiser la reconnaissance vocale
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            recognition = new SpeechRecognition();
+            
+            recognition.continuous = true;
+            recognition.interimResults = true;
+            recognition.maxAlternatives = 1;
+            recognition.lang = languageSelect.value;
+
+            // Changer la langue
+            languageSelect.addEventListener('change', () => {
+                recognition.lang = languageSelect.value;
+                if (isListening) {
+                    recognition.stop();
+                    setTimeout(() => {
+                        recognition.start();
+                    }, 300);
                 }
-                
-                // Configurer la voix
-                const selectedVoice = voices[voiceSelect.value];
-                if (selectedVoice) {
-                    utterance.voice = selectedVoice;
-                }
-                
-                // Configurer la hauteur (limiter pour éviter les bugs)
-                let pitchValue = parseFloat(pitchSelect.value);
-                // Sur certains navigateurs, pitch trop bas cause des erreurs
-                if (pitchValue < 0.5) {
-                    // Pour mobile, on limite à 0.5 minimum
-                    utterance.pitch = Math.max(0.5, pitchValue);
-                    // Et on compense avec un rate plus lent pour effet grave
-                    utterance.rate = Math.min(parseFloat(rateSelect.value), parseFloat(rateSelect.value) * 0.8);
+            });
+
+            // Démarrer/Arrêter
+            function toggleListening() {
+                if (isListening) {
+                    recognition.stop();
                 } else {
-                    utterance.pitch = pitchValue;
-                    utterance.rate = parseFloat(rateSelect.value);
-                }
-                
-                // Configurer le volume (important pour mobile)
-                utterance.volume = 1;
-                
-                // Configurer la langue (aide sur mobile)
-                utterance.lang = selectedVoice ? selectedVoice.lang : 'fr-FR';
-                
-                // Événements
-                utterance.onstart = () => {
-                    status.textContent = 'Lecture en cours...';
-                    status.className = 'status speaking';
-                    speakBtn.disabled = true;
-                    stopBtn.disabled = false;
-                };
-                
-                utterance.onend = () => {
-                    status.textContent = 'Lecture terminée';
-                    status.className = 'status idle';
-                    speakBtn.disabled = false;
-                    stopBtn.disabled = true;
-                };
-                
-                utterance.onerror = (e) => {
-                    console.error('Erreur de synthèse vocale:', e);
-                    console.error('Type erreur:', e.error);
-                    console.error('Message:', e.message);
-                    let errorMsg = 'Erreur de lecture';
-                    if (e.error === 'canceled') {
-                        errorMsg = 'Lecture annulée';
-                    } else if (e.error === 'interrupted') {
-                        errorMsg = 'Lecture interrompue';
-                    } else if (e.error === 'audio-busy') {
-                        errorMsg = 'Audio occupé';
-                    } else if (e.error === 'not-allowed') {
-                        errorMsg = 'Autorisations manquantes';
-                    } else if (e.error === 'network') {
-                        errorMsg = 'Erreur réseau';
-                    } else if (e.error === 'synthesis-unavailable') {
-                        errorMsg = 'Synthèse vocale non disponible';
-                    } else if (e.error === 'synthesis-failed') {
-                        errorMsg = 'Échec de la synthèse';
-                    } else {
-                        errorMsg = 'Erreur: ' + e.error;
+                    try {
+                        recognition.start();
+                    } catch (err) {
+                        console.error('Erreur démarrage:', err);
                     }
-                    status.textContent = errorMsg;
-                    status.className = 'status idle';
-                    speakBtn.disabled = false;
-                    stopBtn.disabled = true;
-                };
-
-                // Sur iOS/Android, il faut parfois relancer
-                try {
-                    synthesis.speak(utterance);
-                } catch (err) {
-                    console.error('Erreur speak:', err);
-                    alert('Erreur de lecture. Essayez de recharger la page.');
                 }
-            }, 100);
+            }
+
+            startBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                toggleListening();
+            });
+
+            startBtn.addEventListener('touchend', (e) => {
+                e.preventDefault();
+                toggleListening();
+            });
+
+            // Événements de reconnaissance
+            recognition.onstart = () => {
+                isListening = true;
+                startBtn.textContent = '⏹ Arrêter l\'écoute';
+                startBtn.className = 'btn-start listening';
+                status.textContent = '🎤 En écoute...';
+                status.className = 'status listening';
+                
+                // Retirer l'état vide
+                const emptyState = transcriptContainer.querySelector('.empty-state');
+                if (emptyState) {
+                    emptyState.remove();
+                }
+            };
+
+            recognition.onend = () => {
+                isListening = false;
+                startBtn.textContent = '▶ Démarrer l\'écoute';
+                startBtn.className = 'btn-start';
+                status.textContent = 'Écoute arrêtée';
+                status.className = 'status idle';
+            };
+
+            recognition.onerror = (event) => {
+                console.error('Erreur reconnaissance:', event.error);
+                let errorMsg = 'Erreur: ';
+                
+                switch(event.error) {
+                    case 'no-speech':
+                        errorMsg += 'Aucune parole détectée';
+                        break;
+                    case 'audio-capture':
+                        errorMsg += 'Micro non accessible';
+                        break;
+                    case 'not-allowed':
+                        errorMsg += 'Permission micro refusée';
+                        break;
+                    case 'network':
+                        errorMsg += 'Erreur réseau';
+                        break;
+                    default:
+                        errorMsg += event.error;
+                }
+                
+                status.textContent = errorMsg;
+                status.className = 'status error';
+            };
+
+            recognition.onresult = (event) => {
+                let interimTranscript = '';
+                let finalTranscript = '';
+
+                for (let i = event.resultIndex; i < event.results.length; i++) {
+                    const transcript = event.results[i][0].transcript;
+                    
+                    if (event.results[i].isFinal) {
+                        finalTranscript += transcript;
+                    } else {
+                        interimTranscript += transcript;
+                    }
+                }
+
+                // Afficher les résultats temporaires
+                if (interimTranscript) {
+                    updateInterimTranscript(interimTranscript);
+                }
+
+                // Ajouter les résultats finaux
+                if (finalTranscript) {
+                    addFinalTranscript(finalTranscript);
+                }
+            };
         }
 
-        // Fonction d'arrêt
-        function stop() {
-            synthesis.cancel();
-            status.textContent = 'Lecture arrêtée';
-            status.className = 'status idle';
-            speakBtn.disabled = false;
-            stopBtn.disabled = true;
+        function updateInterimTranscript(text) {
+            // Chercher ou créer la ligne temporaire
+            let interimLine = transcriptContainer.querySelector('.transcript-line.interim');
+            
+            if (!interimLine) {
+                interimLine = document.createElement('div');
+                interimLine.className = 'transcript-line interim';
+                transcriptContainer.appendChild(interimLine);
+            }
+            
+            interimLine.innerHTML = `
+                <div class="timestamp">[En cours...]</div>
+                <div class="text">${text}</div>
+            `;
+            
+            transcriptContainer.scrollTop = transcriptContainer.scrollHeight;
         }
 
-        // Fonction d'effacement
-        function clear() {
-            textInput.value = '';
-            textInput.focus();
+        function addFinalTranscript(text) {
+            // Retirer la ligne temporaire
+            const interimLine = transcriptContainer.querySelector('.transcript-line.interim');
+            if (interimLine) {
+                interimLine.remove();
+            }
+
+            // Ajouter la ligne finale
+            const timestamp = new Date().toLocaleTimeString('fr-FR');
+            const line = document.createElement('div');
+            line.className = 'transcript-line';
+            line.innerHTML = `
+                <div class="timestamp">[${timestamp}]</div>
+                <div class="text">${text}</div>
+            `;
+            
+            transcriptContainer.appendChild(line);
+            transcriptLines.push({ timestamp, text });
+            
+            // En mode overlay, garder seulement les 3 dernières lignes
+            if (isOverlayMode) {
+                const allLines = transcriptContainer.querySelectorAll('.transcript-line:not(.interim)');
+                if (allLines.length > 3) {
+                    allLines[0].remove();
+                }
+            }
+            
+            transcriptContainer.scrollTop = transcriptContainer.scrollHeight;
         }
 
-        // Événements des boutons - avec touch events pour mobile
-        speakBtn.addEventListener('click', (e) => {
+        // Copier le texte
+        copyBtn.addEventListener('click', (e) => {
             e.preventDefault();
-            speak();
+            copyTranscript();
         });
-        
-        speakBtn.addEventListener('touchend', (e) => {
+
+        copyBtn.addEventListener('touchend', (e) => {
             e.preventDefault();
-            speak();
+            copyTranscript();
         });
-        
-        stopBtn.addEventListener('click', (e) => {
+
+        function copyTranscript() {
+            if (transcriptLines.length === 0) {
+                alert('Aucun texte à copier');
+                return;
+            }
+
+            const text = transcriptLines.map(line => `[${line.timestamp}] ${line.text}`).join('\n');
+            
+            navigator.clipboard.writeText(text).then(() => {
+                const originalText = copyBtn.textContent;
+                copyBtn.textContent = '✓ Copié !';
+                setTimeout(() => {
+                    copyBtn.textContent = originalText;
+                }, 2000);
+            }).catch(err => {
+                console.error('Erreur copie:', err);
+                alert('Erreur lors de la copie');
+            });
+        }
+
+        // Télécharger en TXT
+        downloadBtn.addEventListener('click', (e) => {
             e.preventDefault();
-            stop();
+            downloadTranscript();
         });
-        
-        stopBtn.addEventListener('touchend', (e) => {
+
+        downloadBtn.addEventListener('touchend', (e) => {
             e.preventDefault();
-            stop();
+            downloadTranscript();
         });
-        
+
+        function downloadTranscript() {
+            if (transcriptLines.length === 0) {
+                alert('Aucun texte à télécharger');
+                return;
+            }
+
+            const text = transcriptLines.map(line => `[${line.timestamp}] ${line.text}`).join('\n\n');
+            const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            const date = new Date().toISOString().split('T')[0];
+            a.href = url;
+            a.download = `transcription-${date}.txt`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+
+            const originalText = downloadBtn.textContent;
+            downloadBtn.textContent = '✓ Téléchargé !';
+            setTimeout(() => {
+                downloadBtn.textContent = originalText;
+            }, 2000);
+        }
+
+        // Effacer tout
         clearBtn.addEventListener('click', (e) => {
             e.preventDefault();
-            clear();
-        });
-        
-        clearBtn.addEventListener('touchend', (e) => {
-            e.preventDefault();
-            clear();
+            clearTranscript();
         });
 
-        // Raccourci clavier : Ctrl+Entrée pour lire
-        textInput.addEventListener('keydown', (e) => {
-            if (e.ctrlKey && e.key === 'Enter') {
-                e.preventDefault();
-                speak();
-            }
+        clearBtn.addEventListener('touchend', (e) => {
+            e.preventDefault();
+            clearTranscript();
         });
+
+        function clearTranscript() {
+            if (transcriptLines.length === 0 && !transcriptContainer.querySelector('.transcript-line')) {
+                return;
+            }
+
+            if (confirm('Effacer toute la transcription ?')) {
+                transcriptLines = [];
+                transcriptContainer.innerHTML = `
+                    <div class="empty-state">
+                        Cliquez sur "Démarrer l'écoute" pour commencer la transcription...
+                    </div>
+                `;
+                
+                // Réinitialiser aussi l'audio enregistré
+                audioBlob = null;
+                audioChunks = [];
+                downloadAudioBtn.style.display = 'none';
+            }
+        }
     </script>
 </body>
 </html>
