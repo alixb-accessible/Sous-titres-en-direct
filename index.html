@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Assistant Parole</title>
+    <link rel="stylesheet" href="https://alixb-accessible.github.io/faites-mieux-toolbar/faites-mieux.css">
+    <script src="https://alixb-accessible.github.io/faites-mieux-toolbar/faites-mieux.js" defer></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
+            background: linear-gradient(135deg, 
+                #4a4a4a 0%, #4a4a4a 14.28%,
+                #22c55e 14.28%, #22c55e 28.56%,
+                #3b82f6 28.56%, #3b82f6 42.84%,
+                #ffffff 42.84%, #ffffff 57.12%,
+                #fbbf24 57.12%, #fbbf24 71.4%,
+                #dc2626 71.4%, #dc2626 85.68%,
+                #4a4a4a 85.68%, #4a4a4a 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 700px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        h1 {
+            text-align: center;
+            color: #1f2937;
+            margin-bottom: 30px;
+            font-size: 2em;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #374151;
+            font-weight: 600;
+            font-size: 1.1em;
+        }
+
+        textarea {
+            width: 100%;
+            min-height: 150px;
+            padding: 15px;
+            border: 2px solid #d1d5db;
+            border-radius: 10px;
+            font-size: 16px;
+            font-family: inherit;
+            resize: vertical;
+            transition: border-color 0.3s;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: #3b82f6;
+        }
+
+        .controls {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .controls > div {
+            width: 100%;
+        }
+
+        select {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #d1d5db;
+            border-radius: 10px;
+            font-size: 18px;
+            background: white;
+            cursor: pointer;
+            transition: border-color 0.3s;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 10px center;
+            background-size: 20px;
+            padding-right: 40px;
+        }
+
+        select:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        optgroup {
+            font-weight: bold;
+            font-size: 16px;
+            color: #1f2937;
+            padding: 8px 0;
+        }
+
+        option {
+            padding: 10px;
+            font-size: 16px;
+        }
+
+        .buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        button {
+            width: 100%;
+            padding: 18px 30px;
+            font-size: 20px;
+            font-weight: 600;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            -webkit-tap-highlight-color: rgba(0,0,0,0.1);
+            touch-action: manipulation;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        .btn-speak {
+            background: #22c55e;
+            color: white;
+        }
+
+        .btn-speak:active {
+            background: #16a34a;
+            transform: scale(0.98);
+        }
+
+        .btn-speak:hover {
+            background: #16a34a;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(34, 197, 94, 0.4);
+        }
+
+        .btn-speak:disabled {
+            background: #9ca3af;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-stop {
+            background: #dc2626;
+            color: white;
+        }
+
+        .btn-stop:active {
+            background: #b91c1c;
+            transform: scale(0.98);
+        }
+
+        .btn-stop:hover {
+            background: #b91c1c;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(220, 38, 38, 0.4);
+        }
+
+        .btn-stop:disabled {
+            background: #9ca3af;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-clear {
+            background: #6b7280;
+            color: white;
+        }
+
+        .btn-clear:active {
+            background: #4b5563;
+            transform: scale(0.98);
+        }
+
+        .btn-clear:hover {
+            background: #4b5563;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(107, 114, 128, 0.4);
+        }
+
+        .status {
+            text-align: center;
+            margin-top: 20px;
+            padding: 12px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 16px;
+        }
+
+        .status.speaking {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .status.idle {
+            background: #f3f4f6;
+            color: #6b7280;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 20px;
+            }
+
+            h1 {
+                font-size: 1.6em;
+                margin-bottom: 25px;
+            }
+
+            textarea {
+                min-height: 120px;
+                font-size: 18px;
+            }
+
+            label {
+                font-size: 1em;
+            }
+
+            select {
+                font-size: 16px;
+                padding: 14px;
+                padding-right: 40px;
+            }
+
+            button {
+                padding: 16px;
+                font-size: 18px;
+            }
+
+            .status {
+                font-size: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔊 Assistant Parole</h1>
+        
+        <div class="input-group">
+            <label for="textInput">Écrivez votre texte ici :</label>
+            <textarea 
+                id="textInput" 
+                placeholder="Tapez le texte que vous voulez entendre..."
+                aria-label="Zone de texte pour la synthèse vocale"
+            >Bonjour ! Je suis votre assistant parole. Écrivez quelque chose et je le lirai pour vous.</textarea>
+        </div>
+
+        <div class="controls">
+            <div>
+                <label for="voiceSelect">Voix :</label>
+                <select id="voiceSelect" aria-label="Sélection de la voix"></select>
+            </div>
+            <div>
+                <label for="rateSelect">Vitesse :</label>
+                <select id="rateSelect" aria-label="Sélection de la vitesse">
+                    <option value="0.5">Très lent</option>
+                    <option value="0.6">🦇 Batman (Lent et menaçant)</option>
+                    <option value="0.75">Lent</option>
+                    <option value="1" selected>Normal</option>
+                    <option value="1.25">Rapide</option>
+                    <option value="1.5">Très rapide</option>
+                </select>
+            </div>
+            <div>
+                <label for="pitchSelect">Hauteur :</label>
+                <select id="pitchSelect" aria-label="Sélection de la hauteur de la voix">
+                    <option value="0.5">🦇 Batman (Ultra grave)</option>
+                    <option value="0.6">Très très grave</option>
+                    <option value="0.75">Grave</option>
+                    <option value="1" selected>Normal</option>
+                    <option value="1.25">Aigu</option>
+                    <option value="1.5">Très aigu</option>
+                    <option value="2">Très très aigu</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="buttons">
+            <button class="btn-speak" id="speakBtn" aria-label="Lire le texte">
+                ▶ Lire
+            </button>
+            <button class="btn-stop" id="stopBtn" disabled aria-label="Arrêter la lecture">
+                ⏹ Stop
+            </button>
+            <button class="btn-clear" id="clearBtn" aria-label="Effacer le texte">
+                🗑 Effacer
+            </button>
+        </div>
+
+        <div class="status idle" id="status" role="status" aria-live="polite">
+            Prêt à lire
+        </div>
+    </div>
+
+    <script>
+        const textInput = document.getElementById('textInput');
+        const voiceSelect = document.getElementById('voiceSelect');
+        const rateSelect = document.getElementById('rateSelect');
+        const pitchSelect = document.getElementById('pitchSelect');
+        const speakBtn = document.getElementById('speakBtn');
+        const stopBtn = document.getElementById('stopBtn');
+        const clearBtn = document.getElementById('clearBtn');
+        const status = document.getElementById('status');
+
+        let voices = [];
+        let synthesis = window.speechSynthesis;
+
+        // Charger les voix disponibles
+        function loadVoices() {
+            voices = synthesis.getVoices();
+            voiceSelect.innerHTML = '';
+            
+            // Séparer les voix françaises masculines et féminines
+            const frenchVoices = voices.filter(v => v.lang.startsWith('fr'));
+            const maleVoices = frenchVoices.filter(v => 
+                v.name.toLowerCase().includes('male') || 
+                v.name.toLowerCase().includes('homme') ||
+                v.name.toLowerCase().includes('thomas') ||
+                v.name.toLowerCase().includes('daniel')
+            );
+            const femaleVoices = frenchVoices.filter(v => 
+                v.name.toLowerCase().includes('female') || 
+                v.name.toLowerCase().includes('femme') ||
+                v.name.toLowerCase().includes('amélie') ||
+                v.name.toLowerCase().includes('marie') ||
+                v.name.toLowerCase().includes('céline')
+            );
+            const otherFrenchVoices = frenchVoices.filter(v => 
+                !maleVoices.includes(v) && !femaleVoices.includes(v)
+            );
+            const nonFrenchVoices = voices.filter(v => !v.lang.startsWith('fr'));
+            
+            // Créer les groupes d'options
+            if (femaleVoices.length > 0) {
+                const femaleGroup = document.createElement('optgroup');
+                femaleGroup.label = '🚺 Voix féminines françaises';
+                femaleVoices.forEach(voice => {
+                    const option = document.createElement('option');
+                    option.value = voices.indexOf(voice);
+                    option.textContent = `${voice.name}`;
+                    femaleGroup.appendChild(option);
+                });
+                voiceSelect.appendChild(femaleGroup);
+            }
+            
+            if (maleVoices.length > 0) {
+                const maleGroup = document.createElement('optgroup');
+                maleGroup.label = '🚹 Voix masculines françaises';
+                maleVoices.forEach(voice => {
+                    const option = document.createElement('option');
+                    option.value = voices.indexOf(voice);
+                    option.textContent = `${voice.name}`;
+                    maleGroup.appendChild(option);
+                });
+                voiceSelect.appendChild(maleGroup);
+            }
+            
+            if (otherFrenchVoices.length > 0) {
+                const otherFrGroup = document.createElement('optgroup');
+                otherFrGroup.label = '🇫🇷 Autres voix françaises';
+                otherFrenchVoices.forEach(voice => {
+                    const option = document.createElement('option');
+                    option.value = voices.indexOf(voice);
+                    option.textContent = `${voice.name}`;
+                    if (voice.default) option.selected = true;
+                    otherFrGroup.appendChild(option);
+                });
+                voiceSelect.appendChild(otherFrGroup);
+            }
+            
+            if (nonFrenchVoices.length > 0) {
+                const otherGroup = document.createElement('optgroup');
+                otherGroup.label = '🌍 Autres langues';
+                nonFrenchVoices.forEach(voice => {
+                    const option = document.createElement('option');
+                    option.value = voices.indexOf(voice);
+                    option.textContent = `${voice.name} (${voice.lang})`;
+                    otherGroup.appendChild(option);
+                });
+                voiceSelect.appendChild(otherGroup);
+            }
+        }
+
+        // Charger les voix au chargement et quand elles changent
+        // Sur mobile, il faut parfois attendre un peu
+        loadVoices();
+        if (synthesis.onvoiceschanged !== undefined) {
+            synthesis.onvoiceschanged = loadVoices;
+        }
+        
+        // Recharger après un délai pour mobile
+        setTimeout(loadVoices, 100);
+        setTimeout(loadVoices, 500);
+
+        // Fonction de lecture
+        function speak() {
+            const text = textInput.value.trim();
+            
+            if (!text) {
+                alert('Veuillez entrer du texte à lire.');
+                return;
+            }
+
+            // Arrêter toute lecture en cours
+            synthesis.cancel();
+            
+            // Petit délai pour iOS/Android
+            setTimeout(() => {
+                const utterance = new SpeechSynthesisUtterance(text);
+                
+                // Recharger les voix si nécessaire (bug mobile)
+                if (voices.length === 0) {
+                    voices = synthesis.getVoices();
+                }
+                
+                // Configurer la voix
+                const selectedVoice = voices[voiceSelect.value];
+                if (selectedVoice) {
+                    utterance.voice = selectedVoice;
+                }
+                
+                // Configurer la hauteur (limiter pour éviter les bugs)
+                let pitchValue = parseFloat(pitchSelect.value);
+                // Sur certains navigateurs, pitch trop bas cause des erreurs
+                if (pitchValue < 0.5) {
+                    // Pour mobile, on limite à 0.5 minimum
+                    utterance.pitch = Math.max(0.5, pitchValue);
+                    // Et on compense avec un rate plus lent pour effet grave
+                    utterance.rate = Math.min(parseFloat(rateSelect.value), parseFloat(rateSelect.value) * 0.8);
+                } else {
+                    utterance.pitch = pitchValue;
+                    utterance.rate = parseFloat(rateSelect.value);
+                }
+                
+                // Configurer le volume (important pour mobile)
+                utterance.volume = 1;
+                
+                // Configurer la langue (aide sur mobile)
+                utterance.lang = selectedVoice ? selectedVoice.lang : 'fr-FR';
+                
+                // Événements
+                utterance.onstart = () => {
+                    status.textContent = 'Lecture en cours...';
+                    status.className = 'status speaking';
+                    speakBtn.disabled = true;
+                    stopBtn.disabled = false;
+                };
+                
+                utterance.onend = () => {
+                    status.textContent = 'Lecture terminée';
+                    status.className = 'status idle';
+                    speakBtn.disabled = false;
+                    stopBtn.disabled = true;
+                };
+                
+                utterance.onerror = (e) => {
+                    console.error('Erreur de synthèse vocale:', e);
+                    console.error('Type erreur:', e.error);
+                    console.error('Message:', e.message);
+                    let errorMsg = 'Erreur de lecture';
+                    if (e.error === 'canceled') {
+                        errorMsg = 'Lecture annulée';
+                    } else if (e.error === 'interrupted') {
+                        errorMsg = 'Lecture interrompue';
+                    } else if (e.error === 'audio-busy') {
+                        errorMsg = 'Audio occupé';
+                    } else if (e.error === 'not-allowed') {
+                        errorMsg = 'Autorisations manquantes';
+                    } else if (e.error === 'network') {
+                        errorMsg = 'Erreur réseau';
+                    } else if (e.error === 'synthesis-unavailable') {
+                        errorMsg = 'Synthèse vocale non disponible';
+                    } else if (e.error === 'synthesis-failed') {
+                        errorMsg = 'Échec de la synthèse';
+                    } else {
+                        errorMsg = 'Erreur: ' + e.error;
+                    }
+                    status.textContent = errorMsg;
+                    status.className = 'status idle';
+                    speakBtn.disabled = false;
+                    stopBtn.disabled = true;
+                };
+
+                // Sur iOS/Android, il faut parfois relancer
+                try {
+                    synthesis.speak(utterance);
+                } catch (err) {
+                    console.error('Erreur speak:', err);
+                    alert('Erreur de lecture. Essayez de recharger la page.');
+                }
+            }, 100);
+        }
+
+        // Fonction d'arrêt
+        function stop() {
+            synthesis.cancel();
+            status.textContent = 'Lecture arrêtée';
+            status.className = 'status idle';
+            speakBtn.disabled = false;
+            stopBtn.disabled = true;
+        }
+
+        // Fonction d'effacement
+        function clear() {
+            textInput.value = '';
+            textInput.focus();
+        }
+
+        // Événements des boutons - avec touch events pour mobile
+        speakBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            speak();
+        });
+        
+        speakBtn.addEventListener('touchend', (e) => {
+            e.preventDefault();
+            speak();
+        });
+        
+        stopBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            stop();
+        });
+        
+        stopBtn.addEventListener('touchend', (e) => {
+            e.preventDefault();
+            stop();
+        });
+        
+        clearBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            clear();
+        });
+        
+        clearBtn.addEventListener('touchend', (e) => {
+            e.preventDefault();
+            clear();
+        });
+
+        // Raccourci clavier : Ctrl+Entrée pour lire
+        textInput.addEventListener('keydown', (e) => {
+            if (e.ctrlKey && e.key === 'Enter') {
+                e.preventDefault();
+                speak();
+            }
+        });
+    </script>
+</body>
+</html>
