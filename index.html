@@ -222,12 +222,53 @@
             border-radius: 8px;
             border-left: 4px solid #3b82f6;
             box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         .transcript-line.interim {
             border-left-color: #fbbf24;
             opacity: 0.7;
             font-style: italic;
+        }
+
+        .transcript-line.low-confidence {
+            border-left-color: #f97316;
+            background: #fff7ed;
+        }
+
+        .confidence-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.75em;
+            font-weight: 600;
+            margin-left: 8px;
+        }
+
+        .confidence-high {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .confidence-medium {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .confidence-low {
+            background: #fee2e2;
+            color: #991b1b;
         }
 
         .timestamp {
@@ -265,6 +306,11 @@
         .status.error {
             background: #fee2e2;
             color: #991b1b;
+        }
+
+        .status.auto-save {
+            background: #dbeafe;
+            color: #1e40af;
         }
 
         .recording-indicator {
@@ -325,6 +371,18 @@
             padding: 25px 30px !important;
             margin-bottom: 20px !important;
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5) !important;
+            animation: fadeInSlide 0.5s ease-out !important;
+        }
+
+        @keyframes fadeInSlide {
+            from {
+                opacity: 0;
+                transform: translateX(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
         }
 
         body.overlay-mode .transcript-line.interim {
@@ -345,6 +403,10 @@
             line-height: 1.5 !important;
             font-weight: 600 !important;
             text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8) !important;
+        }
+
+        body.overlay-mode .confidence-badge {
+            display: none !important;
         }
 
         body.overlay-mode .empty-state {
@@ -428,7 +490,7 @@
         </div>
 
         <div class="recording-indicator" id="recordingIndicator">
-            🔴 ENREGISTREMENT AUDIO EN COURS
+             ENREGISTREMENT AUDIO EN COURS
         </div>
 
         <div class="controls">
@@ -451,22 +513,22 @@
 
         <div class="buttons">
             <button class="btn-start" id="startBtn" aria-label="Démarrer l'écoute">
-                ▶ Démarrer l'écoute
+                 Démarrer l'écoute
             </button>
             <button class="btn-record" id="recordBtn" aria-label="Enregistrer l'audio">
-                🔴 Enregistrer l'audio
+                 Enregistrer l'audio
             </button>
             <button class="btn-overlay" id="overlayBtn" aria-label="Mode incrustation stream">
-                🎬 Mode Incrustation Stream
+                 Mode Incrustation Stream
             </button>
             <button class="btn-copy" id="copyBtn" aria-label="Copier le texte">
-                📋 Copier le texte
+                 Copier le texte
             </button>
             <button class="btn-download" id="downloadBtn" aria-label="Télécharger en TXT">
-                💾 Télécharger (TXT)
+                 Télécharger (TXT)
             </button>
             <button class="btn-download-audio" id="downloadAudioBtn" aria-label="Télécharger l'audio" style="display: none;">
-                🎵 Télécharger l'audio
+                Télécharger l'audio
             </button>
             <button class="btn-clear" id="clearBtn" aria-label="Effacer tout">
                 🗑 Effacer tout
@@ -480,7 +542,7 @@
         </div>
 
         <div class="overlay-instructions" id="overlayInstructions">
-            <h3>🎬 Mode Incrustation Actif</h3>
+            <h3> Mode Incrustation Actif</h3>
             <p><strong>Pour OBS Studio :</strong></p>
             <p>1. Ajoutez une source "Navigateur"</p>
             <p>2. Collez l'URL de cette page</p>
@@ -510,12 +572,97 @@
         let isListening = false;
         let transcriptLines = [];
         let isOverlayMode = false;
+        let autoSaveInterval = null;
+        let restartAttempts = 0;
+        let lastSpeechTime = Date.now();
+        let silenceTimeout = null;
 
         // Variables pour l'enregistrement audio
         let mediaRecorder = null;
         let audioChunks = [];
         let isRecording = false;
         let audioBlob = null;
+
+        // AMÉLIORATION 5 : Persistance locale - Charger les données sauvegardées
+        function loadSavedTranscript() {
+            try {
+                const saved = localStorage.getItem('transcript_autosave');
+                if (saved) {
+                    const data = JSON.parse(saved);
+                    transcriptLines = data.lines || [];
+                    if (transcriptLines.length > 0) {
+                        renderTranscript();
+                        showStatus(' Transcription précédente restaurée', 'auto-save');
+                        setTimeout(() => {
+                            if (!isListening) {
+                                showStatus('Prêt à écouter', 'idle');
+                            }
+                        }, 3000);
+                    }
+                }
+            } catch (err) {
+                console.error('Erreur chargement sauvegarde:', err);
+            }
+        }
+
+        // AMÉLIORATION 5 : Sauvegarde automatique
+        function autoSaveTranscript() {
+            try {
+                const data = {
+                    lines: transcriptLines,
+                    timestamp: new Date().toISOString()
+                };
+                localStorage.setItem('transcript_autosave', JSON.stringify(data));
+            } catch (err) {
+                console.error('Erreur sauvegarde auto:', err);
+            }
+        }
+
+        // Démarrer la sauvegarde automatique toutes les 10 secondes
+        function startAutoSave() {
+            if (!autoSaveInterval) {
+                autoSaveInterval = setInterval(autoSaveTranscript, 10000);
+            }
+        }
+
+        function stopAutoSave() {
+            if (autoSaveInterval) {
+                clearInterval(autoSaveInterval);
+                autoSaveInterval = null;
+            }
+        }
+
+        // AMÉLIORATION 1 : Meilleure ponctuation
+        function addPunctuation(text) {
+            // Ajouter un point à la fin si pas de ponctuation
+            text = text.trim();
+            if (text && !/[.!?]$/.test(text)) {
+                // Détecter les questions
+                if (/^(qui|quoi|où|quand|comment|pourquoi|est-ce que|quel)/i.test(text)) {
+                    text += ' ?';
+                } else {
+                    text += '.';
+                }
+            }
+            // Capitaliser la première lettre
+            if (text.length > 0) {
+                text = text.charAt(0).toUpperCase() + text.slice(1);
+            }
+            return text;
+        }
+
+        // AMÉLIORATION 2 : Détection des pauses
+        function detectSilence() {
+            const now = Date.now();
+            const timeSinceLastSpeech = now - lastSpeechTime;
+            
+            // Si plus de 2 secondes sans parole, considérer comme une pause
+            if (timeSinceLastSpeech > 2000 && isListening) {
+                // Marquer la fin d'un segment
+                return true;
+            }
+            return false;
+        }
 
         // Mode incrustation
         overlayBtn.addEventListener('click', (e) => {
@@ -579,10 +726,8 @@
                     } 
                 });
 
-                // Créer le MediaRecorder
                 const options = { mimeType: 'audio/webm' };
                 
-                // Fallback pour Safari
                 if (!MediaRecorder.isTypeSupported('audio/webm')) {
                     options.mimeType = 'audio/mp4';
                 }
@@ -599,14 +744,12 @@
                 mediaRecorder.onstop = () => {
                     audioBlob = new Blob(audioChunks, { type: mediaRecorder.mimeType });
                     downloadAudioBtn.style.display = 'block';
-                    
-                    // Arrêter tous les tracks du stream
                     stream.getTracks().forEach(track => track.stop());
                 };
 
                 mediaRecorder.start();
                 isRecording = true;
-                recordBtn.textContent = '⏹ Arrêter l\'enregistrement';
+                recordBtn.textContent = ' Arrêter l\'enregistrement';
                 recordBtn.classList.add('recording');
                 recordingIndicator.classList.add('active');
 
@@ -620,13 +763,12 @@
             if (mediaRecorder && mediaRecorder.state !== 'inactive') {
                 mediaRecorder.stop();
                 isRecording = false;
-                recordBtn.textContent = '🔴 Enregistrer l\'audio';
+                recordBtn.textContent = ' Enregistrer l\'audio';
                 recordBtn.classList.remove('recording');
                 recordingIndicator.classList.remove('active');
             }
         }
 
-        // Télécharger l'audio
         downloadAudioBtn.addEventListener('click', (e) => {
             e.preventDefault();
             downloadAudio();
@@ -664,8 +806,7 @@
 
         // Vérifier la compatibilité
         if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
-            status.textContent = 'Erreur : Reconnaissance vocale non supportée par ce navigateur';
-            status.className = 'status error';
+            showStatus('Erreur : Reconnaissance vocale non supportée par ce navigateur', 'error');
             startBtn.disabled = true;
         } else {
             // Initialiser la reconnaissance vocale
@@ -677,7 +818,6 @@
             recognition.maxAlternatives = 1;
             recognition.lang = languageSelect.value;
 
-            // Changer la langue
             languageSelect.addEventListener('change', () => {
                 recognition.lang = languageSelect.value;
                 if (isListening) {
@@ -688,13 +828,13 @@
                 }
             });
 
-            // Démarrer/Arrêter
             function toggleListening() {
                 if (isListening) {
                     recognition.stop();
                 } else {
                     try {
                         recognition.start();
+                        startAutoSave();
                     } catch (err) {
                         console.error('Erreur démarrage:', err);
                     }
@@ -711,15 +851,14 @@
                 toggleListening();
             });
 
-            // Événements de reconnaissance
+            // AMÉLIORATION 6 : Redémarrage automatique en cas d'erreur
             recognition.onstart = () => {
                 isListening = true;
-                startBtn.textContent = '⏹ Arrêter l\'écoute';
+                restartAttempts = 0;
+                startBtn.textContent = ' Arrêter l\'écoute';
                 startBtn.className = 'btn-start listening';
-                status.textContent = '🎤 En écoute...';
-                status.className = 'status listening';
+                showStatus('En écoute...', 'listening');
                 
-                // Retirer l'état vide
                 const emptyState = transcriptContainer.querySelector('.empty-state');
                 if (emptyState) {
                     emptyState.remove();
@@ -728,208 +867,11 @@
 
             recognition.onend = () => {
                 isListening = false;
-                startBtn.textContent = '▶ Démarrer l\'écoute';
+                startBtn.textContent = ' Démarrer l\'écoute';
                 startBtn.className = 'btn-start';
-                status.textContent = 'Écoute arrêtée';
-                status.className = 'status idle';
-            };
-
-            recognition.onerror = (event) => {
-                console.error('Erreur reconnaissance:', event.error);
-                let errorMsg = 'Erreur: ';
                 
-                switch(event.error) {
-                    case 'no-speech':
-                        errorMsg += 'Aucune parole détectée';
-                        break;
-                    case 'audio-capture':
-                        errorMsg += 'Micro non accessible';
-                        break;
-                    case 'not-allowed':
-                        errorMsg += 'Permission micro refusée';
-                        break;
-                    case 'network':
-                        errorMsg += 'Erreur réseau';
-                        break;
-                    default:
-                        errorMsg += event.error;
-                }
-                
-                status.textContent = errorMsg;
-                status.className = 'status error';
-            };
-
-            recognition.onresult = (event) => {
-                let interimTranscript = '';
-                let finalTranscript = '';
-
-                for (let i = event.resultIndex; i < event.results.length; i++) {
-                    const transcript = event.results[i][0].transcript;
-                    
-                    if (event.results[i].isFinal) {
-                        finalTranscript += transcript;
-                    } else {
-                        interimTranscript += transcript;
-                    }
-                }
-
-                // Afficher les résultats temporaires
-                if (interimTranscript) {
-                    updateInterimTranscript(interimTranscript);
-                }
-
-                // Ajouter les résultats finaux
-                if (finalTranscript) {
-                    addFinalTranscript(finalTranscript);
-                }
-            };
-        }
-
-        function updateInterimTranscript(text) {
-            // Chercher ou créer la ligne temporaire
-            let interimLine = transcriptContainer.querySelector('.transcript-line.interim');
-            
-            if (!interimLine) {
-                interimLine = document.createElement('div');
-                interimLine.className = 'transcript-line interim';
-                transcriptContainer.appendChild(interimLine);
-            }
-            
-            interimLine.innerHTML = `
-                <div class="timestamp">[En cours...]</div>
-                <div class="text">${text}</div>
-            `;
-            
-            transcriptContainer.scrollTop = transcriptContainer.scrollHeight;
-        }
-
-        function addFinalTranscript(text) {
-            // Retirer la ligne temporaire
-            const interimLine = transcriptContainer.querySelector('.transcript-line.interim');
-            if (interimLine) {
-                interimLine.remove();
-            }
-
-            // Ajouter la ligne finale
-            const timestamp = new Date().toLocaleTimeString('fr-FR');
-            const line = document.createElement('div');
-            line.className = 'transcript-line';
-            line.innerHTML = `
-                <div class="timestamp">[${timestamp}]</div>
-                <div class="text">${text}</div>
-            `;
-            
-            transcriptContainer.appendChild(line);
-            transcriptLines.push({ timestamp, text });
-            
-            // En mode overlay, garder seulement les 3 dernières lignes
-            if (isOverlayMode) {
-                const allLines = transcriptContainer.querySelectorAll('.transcript-line:not(.interim)');
-                if (allLines.length > 3) {
-                    allLines[0].remove();
-                }
-            }
-            
-            transcriptContainer.scrollTop = transcriptContainer.scrollHeight;
-        }
-
-        // Copier le texte
-        copyBtn.addEventListener('click', (e) => {
-            e.preventDefault();
-            copyTranscript();
-        });
-
-        copyBtn.addEventListener('touchend', (e) => {
-            e.preventDefault();
-            copyTranscript();
-        });
-
-        function copyTranscript() {
-            if (transcriptLines.length === 0) {
-                alert('Aucun texte à copier');
-                return;
-            }
-
-            const text = transcriptLines.map(line => `[${line.timestamp}] ${line.text}`).join('\n');
-            
-            navigator.clipboard.writeText(text).then(() => {
-                const originalText = copyBtn.textContent;
-                copyBtn.textContent = '✓ Copié !';
-                setTimeout(() => {
-                    copyBtn.textContent = originalText;
-                }, 2000);
-            }).catch(err => {
-                console.error('Erreur copie:', err);
-                alert('Erreur lors de la copie');
-            });
-        }
-
-        // Télécharger en TXT
-        downloadBtn.addEventListener('click', (e) => {
-            e.preventDefault();
-            downloadTranscript();
-        });
-
-        downloadBtn.addEventListener('touchend', (e) => {
-            e.preventDefault();
-            downloadTranscript();
-        });
-
-        function downloadTranscript() {
-            if (transcriptLines.length === 0) {
-                alert('Aucun texte à télécharger');
-                return;
-            }
-
-            const text = transcriptLines.map(line => `[${line.timestamp}] ${line.text}`).join('\n\n');
-            const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            const date = new Date().toISOString().split('T')[0];
-            a.href = url;
-            a.download = `transcription-${date}.txt`;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
-
-            const originalText = downloadBtn.textContent;
-            downloadBtn.textContent = '✓ Téléchargé !';
-            setTimeout(() => {
-                downloadBtn.textContent = originalText;
-            }, 2000);
-        }
-
-        // Effacer tout
-        clearBtn.addEventListener('click', (e) => {
-            e.preventDefault();
-            clearTranscript();
-        });
-
-        clearBtn.addEventListener('touchend', (e) => {
-            e.preventDefault();
-            clearTranscript();
-        });
-
-        function clearTranscript() {
-            if (transcriptLines.length === 0 && !transcriptContainer.querySelector('.transcript-line')) {
-                return;
-            }
-
-            if (confirm('Effacer toute la transcription ?')) {
-                transcriptLines = [];
-                transcriptContainer.innerHTML = `
-                    <div class="empty-state">
-                        Cliquez sur "Démarrer l'écoute" pour commencer la transcription...
-                    </div>
-                `;
-                
-                // Réinitialiser aussi l'audio enregistré
-                audioBlob = null;
-                audioChunks = [];
-                downloadAudioBtn.style.display = 'none';
-            }
-        }
-    </script>
-</body>
-</html>
+                // AMÉLIORATION 6 : Redémarrage automatique si arrêt inattendu
+                if (restartAttempts < 3 && !isOverlayMode) {
+                    // Ne pas redémarrer si l'utilisateur a volontairement arrêté
+                    showStatus('Écoute arrêtée', 'idle');
+                } else
